@@ -359,13 +359,28 @@ public class EnchantmentWorkbenchScreen extends AbstractContainerScreen<Enchantm
 
 		Holder.Reference<Enchantment> hoveredInfo = getHoveredInfo(mouseX, mouseY);
 		if (hoveredInfo != null) {
-			List<Component> lines = List.of(
-				hoveredInfo.value().description(),
-				Component.literal("Max level: " + hoveredInfo.value().getMaxLevel()),
-				Component.literal("Category: " + Category.bestFor(hoveredInfo.key().identifier()).label)
-			);
-			graphics.setComponentTooltipForNextFrame(this.font, lines, mouseX, mouseY);
+			graphics.setComponentTooltipForNextFrame(this.font, buildInfoTooltip(hoveredInfo), mouseX, mouseY);
 		}
+	}
+
+	private List<Component> buildInfoTooltip(Holder.Reference<Enchantment> enchantment) {
+		Identifier id = enchantment.key().identifier();
+		List<Component> lines = new ArrayList<>();
+		lines.add(enchantment.value().description());
+		lines.add(Component.literal(describeEnchantment(id)));
+		lines.add(Component.literal("Max level: " + enchantment.value().getMaxLevel()));
+		lines.add(Component.literal("Category: " + Category.bestFor(id).label));
+		lines.add(Component.literal("Cost: " + costRange(id, enchantment.value().getMaxLevel()) + " XP"));
+		lines.add(Component.literal(EnchantingRules.canApply(enchantment, this.cachedInput) ? "Works with inserted item." : "Insert a compatible item or book."));
+
+		String incompatibility = incompatibilityNote(id);
+		if (!incompatibility.isEmpty()) {
+			lines.add(Component.literal("Incompatible: " + incompatibility));
+		}
+		if (isConflicting(enchantment)) {
+			lines.add(Component.literal("Currently blocked by your selection or item."));
+		}
+		return lines;
 	}
 
 	private boolean canEnchantNow() {
@@ -431,6 +446,10 @@ public class EnchantmentWorkbenchScreen extends AbstractContainerScreen<Enchantm
 		if (event.button() == 0) {
 			double mouseX = event.x();
 			double mouseY = event.y();
+			if (this.searchBox != null && !this.searchBox.isMouseOver(mouseX, mouseY)) {
+				this.searchBox.setFocused(false);
+				this.clearFocus();
+			}
 
 			if (handleTabClick(mouseX, mouseY)) {
 				return true;
@@ -687,6 +706,84 @@ public class EnchantmentWorkbenchScreen extends AbstractContainerScreen<Enchantm
 			builder.append(Character.toUpperCase(part.charAt(0))).append(part.substring(1));
 		}
 		return this.font.plainSubstrByWidth(builder.toString(), 128);
+	}
+
+	private String costRange(Identifier id, int maxLevel) {
+		if (maxLevel <= 1) {
+			return Integer.toString(WorkbenchCostConfig.getXpCost(id, 1));
+		}
+		return WorkbenchCostConfig.getXpCost(id, 1) + "-" + WorkbenchCostConfig.getXpCost(id, maxLevel);
+	}
+
+	private String incompatibilityNote(Identifier id) {
+		return switch (id.getPath()) {
+			case "sharpness" -> "Smite, Bane of Arthropods";
+			case "smite" -> "Sharpness, Bane of Arthropods";
+			case "bane_of_arthropods" -> "Sharpness, Smite";
+			case "silk_touch" -> "Fortune";
+			case "fortune" -> "Silk Touch";
+			case "mending" -> "Infinity";
+			case "infinity" -> "Mending";
+			case "loyalty" -> "Riptide";
+			case "riptide" -> "Loyalty, Channeling";
+			case "channeling" -> "Riptide";
+			case "multishot" -> "Piercing";
+			case "piercing" -> "Multishot";
+			case "protection" -> "Fire, Blast, Projectile Protection";
+			case "fire_protection", "blast_protection", "projectile_protection" -> "Protection and other protection types";
+			case "breach" -> "Density";
+			case "density" -> "Breach";
+			default -> "";
+		};
+	}
+
+	private String describeEnchantment(Identifier id) {
+		return switch (id.getPath()) {
+			case "protection" -> "Reduces most incoming damage on armor.";
+			case "fire_protection" -> "Reduces fire damage and burn time.";
+			case "feather_falling" -> "Reduces fall damage on boots.";
+			case "blast_protection" -> "Reduces explosion damage and knockback.";
+			case "projectile_protection" -> "Reduces damage from arrows and other projectiles.";
+			case "respiration" -> "Extends underwater breathing time.";
+			case "aqua_affinity" -> "Lets you mine faster while underwater.";
+			case "thorns" -> "Damages attackers when they hit you.";
+			case "depth_strider" -> "Increases underwater movement speed.";
+			case "frost_walker" -> "Freezes water under your feet into ice.";
+			case "binding_curse" -> "Prevents armor from being removed normally.";
+			case "soul_speed" -> "Increases speed on soul sand and soul soil.";
+			case "swift_sneak" -> "Increases movement speed while sneaking.";
+			case "sharpness" -> "Increases melee damage against most targets.";
+			case "smite" -> "Increases melee damage against undead mobs.";
+			case "bane_of_arthropods" -> "Increases damage to arthropods and slows them.";
+			case "knockback" -> "Pushes enemies farther away on hit.";
+			case "fire_aspect" -> "Sets targets on fire when hit.";
+			case "looting" -> "Increases mob drops from kills.";
+			case "sweeping_edge" -> "Improves sword sweep attack damage.";
+			case "efficiency" -> "Increases mining and tool use speed.";
+			case "silk_touch" -> "Drops many blocks exactly as mined.";
+			case "unbreaking" -> "Gives items a chance not to lose durability.";
+			case "fortune" -> "Increases drops from many mined blocks.";
+			case "power" -> "Increases bow damage.";
+			case "punch" -> "Adds knockback to bow shots.";
+			case "flame" -> "Sets arrows and targets on fire.";
+			case "infinity" -> "Lets a bow fire without consuming normal arrows.";
+			case "luck_of_the_sea" -> "Improves treasure odds while fishing.";
+			case "lure" -> "Makes fish bite faster.";
+			case "loyalty" -> "Makes thrown tridents return to you.";
+			case "impaling" -> "Increases trident damage against aquatic targets.";
+			case "riptide" -> "Launches you with a trident in water or rain.";
+			case "channeling" -> "Summons lightning with tridents during storms.";
+			case "multishot" -> "Fires multiple crossbow projectiles at once.";
+			case "quick_charge" -> "Reloads crossbows faster.";
+			case "piercing" -> "Crossbow shots pass through multiple targets.";
+			case "density" -> "Increases mace smash damage from falling.";
+			case "breach" -> "Reduces target armor effectiveness for mace hits.";
+			case "wind_burst" -> "Launches you upward after a mace smash hit.";
+			case "lunge" -> "Adds a forward lunge to spear attacks.";
+			case "mending" -> "Repairs the item using experience orbs.";
+			case "vanishing_curse" -> "Makes the item disappear when you die.";
+			default -> "Custom enchantment. The server will validate compatibility and cost.";
+		};
 	}
 
 	private record HoveredLevel(Holder.Reference<Enchantment> enchantment, int level) {
