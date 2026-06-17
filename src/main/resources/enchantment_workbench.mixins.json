@@ -1,0 +1,14 @@
+{
+	"required": true,
+	"package": "com.hmed.enchantmentworkbench.mixin",
+	"compatibilityLevel": "JAVA_25",
+	"mixins": [
+		"EnchantingTableBlockMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	},
+	"overwrites": {
+		"requireAnnotations": true
+	}
+}
