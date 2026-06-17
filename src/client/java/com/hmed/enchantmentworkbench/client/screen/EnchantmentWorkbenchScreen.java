@@ -40,7 +40,7 @@ public class EnchantmentWorkbenchScreen extends AbstractContainerScreen<Enchantm
 	private static final int CATALOG_X = 146;
 	private static final int CATALOG_Y = 91;
 	private static final int CATALOG_W = 228;
-	private static final int CATALOG_H = 58;
+	private static final int CATALOG_H = 84;
 	private static final int ROW_HEIGHT = 28;
 	private static final int SCROLLBAR_W = 6;
 	private static final int SELECTED_PANEL_X = 8;
@@ -91,7 +91,7 @@ public class EnchantmentWorkbenchScreen extends AbstractContainerScreen<Enchantm
 				this.selectedScrollAmount = 0.0F;
 				rebuildFilter();
 			}
-		}).bounds(this.leftPos + 276, this.topPos + 154, 98, 20).build();
+		}).bounds(this.leftPos + 14, this.topPos + 154, 120, 20).build();
 		this.addRenderableWidget(this.enchantButton);
 
 		this.closeButton = Button.builder(Component.translatable("gui.enchantment_workbench.close"), button -> this.onClose())
@@ -119,7 +119,6 @@ public class EnchantmentWorkbenchScreen extends AbstractContainerScreen<Enchantm
 		drawWorkbench(graphics, mouseX, mouseY);
 		drawSelectedPanel(graphics);
 		drawCatalog(graphics, mouseX, mouseY);
-		drawBottomBar(graphics);
 		super.extractContents(graphics, mouseX, mouseY, partialTick);
 		drawHoverTooltips(graphics, mouseX, mouseY);
 	}
@@ -182,9 +181,8 @@ public class EnchantmentWorkbenchScreen extends AbstractContainerScreen<Enchantm
 		fillPanel(graphics, x + 5, y + 5, IMAGE_WIDTH - 10, 18, 0xFF3A3A3A, 0xFF111111, 0xFF8B8B8B);
 		graphics.text(this.font, Component.translatable("container.enchantment_workbench.title"), x + 12, y + 10, 0xFFFFFFFF);
 
-		fillPanel(graphics, x + 8, y + 28, 126, 123, 0xFF242424, 0xFF0D0D0D, 0xFF737373);
-		fillPanel(graphics, x + 140, y + 28, 242, 123, 0xFF242424, 0xFF0D0D0D, 0xFF737373);
-		fillPanel(graphics, x + 8, y + 154, 260, 21, 0xFF292929, 0xFF0D0D0D, 0xFF737373);
+		fillPanel(graphics, x + 8, y + 28, 126, 147, 0xFF242424, 0xFF0D0D0D, 0xFF737373);
+		fillPanel(graphics, x + 140, y + 28, 242, 147, 0xFF242424, 0xFF0D0D0D, 0xFF737373);
 		fillPanel(graphics, x + SELECTED_PANEL_X, y + SELECTED_PANEL_Y, SELECTED_PANEL_W, SELECTED_PANEL_H, 0xFF2E2E2E, 0xFF121212, 0xFF707070);
 		fillPanel(graphics, x + 192, y + 179, 190, 78, 0xFF2E2E2E, 0xFF121212, 0xFF707070);
 
@@ -312,17 +310,6 @@ public class EnchantmentWorkbenchScreen extends AbstractContainerScreen<Enchantm
 			graphics.outline(buttonX, buttonY, 30, 12, border);
 			graphics.centeredText(this.font, roman(level), buttonX + 15, buttonY + 2, locked ? 0xFF777777 : selected ? 0xFFFFD15A : 0xFFECECEC);
 		}
-	}
-
-	private void drawBottomBar(GuiGraphicsExtractor graphics) {
-		int x = this.leftPos;
-		int y = this.topPos;
-		int lapis = getRequiredLapis();
-		int xp = getRequiredXp();
-		graphics.text(this.font, "TOTAL:", x + 17, y + 161, 0xFFFFFFFF);
-		graphics.text(this.font, lapis + " Lapis", x + 58, y + 161, 0xFF6BA0FF);
-		graphics.text(this.font, "//", x + 112, y + 161, 0xFFDDDDDD);
-		graphics.text(this.font, xp + " XP", x + 130, y + 161, 0xFF55FF55);
 	}
 
 	private void drawTabs(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
