@@ -1,67 +1,80 @@
 plugins {
-	id 'net.fabricmc.fabric-loom' version "${loom_version}"
-	id 'maven-publish'
+    id 'java'
+    id 'idea'
+    id 'eclipse'
+    id 'net.minecraftforge.gradle' version '[7.0.17,8)'
 }
 
-version = project.mod_version
-group = project.maven_group
+version = mod_version
+group = maven_group
 
 base {
-	archivesName = project.archives_base_name
+    archivesName = archives_base_name
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(25)
+
+sourceSets {
+    main {
+        java.srcDir 'src/client/java'
+        resources.srcDir 'src/generated/resources'
+    }
+}
+
+minecraft {
+    runs {
+        configureEach {
+            workingDir = layout.projectDirectory.dir('run')
+            systemProperty 'eventbus.api.strictRuntimeChecks', 'true'
+        }
+        register('client')
+        register('server') { args '--nogui' }
+    }
 }
 
 repositories {
-}
-
-loom {
-	splitEnvironmentSourceSets()
-
-	mods {
-		"enchantment_workbench" {
-			sourceSet sourceSets.main
-			sourceSet sourceSets.client
-		}
-	}
+    minecraft.mavenizer(it)
+    maven fg.forgeMaven
+    maven fg.minecraftLibsMaven
+    mavenCentral()
 }
 
 dependencies {
-	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
-	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+    implementation minecraft.dependency("net.minecraftforge:forge:${minecraft_version}-${forge_version}")
+    annotationProcessor 'net.minecraftforge:eventbus-validator:7.0.1'
 }
 
-processResources {
-	def version = project.version
-	inputs.property "version", version
-
-	filesMatching("fabric.mod.json") {
-		expand "version": version
-	}
+tasks.named('processResources', ProcessResources).configure {
+    def properties = [
+        mod_version: mod_version,
+        minecraft_version: minecraft_version,
+        forge_version: forge_version
+    ]
+    inputs.properties properties
+    filesMatching('META-INF/mods.toml') { expand properties }
 }
 
 tasks.withType(JavaCompile).configureEach {
-	it.options.release = 25
+    options.encoding = 'UTF-8'
+    options.release = 25
 }
 
-java {
-	withSourcesJar()
-	sourceCompatibility = JavaVersion.VERSION_25
-	targetCompatibility = JavaVersion.VERSION_25
-}
+def archiveProjectName = rootProject.name
+def archiveVersion = version.toString()
 
 jar {
-	def projectName = project.name
-	inputs.property "projectName", projectName
-
-	from("LICENSE") {
-		rename { "${it}_${projectName}" }
-	}
-}
-
-publishing {
-	publications {
-		create("mavenJava", MavenPublication) {
-			from components.java
-		}
-	}
+    archiveFileName = "enchantments-enhanced-forge-${archiveVersion}+mc${minecraft_version}.jar"
+    from('LICENSE') {
+        rename { "${it}_${archiveProjectName}" }
+    }
+    manifest {
+        attributes([
+            'Specification-Title': 'Enchantments Enhanced',
+            'Specification-Vendor': 'hmed',
+            'Specification-Version': '1',
+            'Implementation-Title': archiveProjectName,
+            'Implementation-Version': archiveVersion,
+            'Implementation-Vendor': 'hmed'
+        ])
+    }
 }

@@ -3,7 +3,7 @@ package com.hmed.enchantmentworkbench.config;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.hmed.enchantmentworkbench.EnchantmentWorkbenchMod;
-import net.fabricmc.loader.api.FabricLoader;
+import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraft.resources.Identifier;
 
 import java.io.IOException;
@@ -23,7 +23,7 @@ public final class WorkbenchCostConfig {
 	}
 
 	public static void load() {
-		Path path = FabricLoader.getInstance().getConfigDir().resolve("enchantment_workbench_v2.json");
+		Path path = FMLPaths.CONFIGDIR.get().resolve("enchantment_workbench_v2.json");
 		if (Files.notExists(path)) {
 			writeDefaults(path);
 			return;

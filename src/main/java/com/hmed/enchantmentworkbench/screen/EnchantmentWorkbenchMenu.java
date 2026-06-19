@@ -43,7 +43,7 @@ public class EnchantmentWorkbenchMenu extends AbstractContainerMenu {
 	}
 
 	public EnchantmentWorkbenchMenu(int syncId, Inventory inventory, ContainerLevelAccess access) {
-		super(EnchantmentWorkbenchMod.MENU_TYPE, syncId);
+		super(EnchantmentWorkbenchMod.MENU_TYPE.get(), syncId);
 		this.access = access;
 
 		this.addSlot(new Slot(this.workbench, INPUT_SLOT, INPUT_X, INPUT_Y) {

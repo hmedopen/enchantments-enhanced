@@ -1,10 +1,10 @@
 package com.hmed.enchantmentworkbench.client.screen;
 
 import com.hmed.enchantmentworkbench.config.WorkbenchCostConfig;
+import com.hmed.enchantmentworkbench.EnchantmentWorkbenchMod;
 import com.hmed.enchantmentworkbench.network.EnchantRequestPayload;
 import com.hmed.enchantmentworkbench.screen.EnchantmentWorkbenchMenu;
 import com.hmed.enchantmentworkbench.service.EnchantingRules;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -86,7 +86,7 @@ public class EnchantmentWorkbenchScreen extends AbstractContainerScreen<Enchantm
 
 		this.enchantButton = Button.builder(Component.translatable("gui.enchantment_workbench.enchant"), button -> {
 			if (canEnchantNow()) {
-				ClientPlayNetworking.send(new EnchantRequestPayload(new LinkedHashMap<>(this.cart)));
+				EnchantmentWorkbenchMod.sendEnchantRequest(new EnchantRequestPayload(new LinkedHashMap<>(this.cart)));
 				this.cart.clear();
 				this.selectedScrollAmount = 0.0F;
 				rebuildFilter();
