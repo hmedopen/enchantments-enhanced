@@ -1,0 +1,30 @@
+modLoader="javafml"
+loaderVersion="[64,)"
+license="MIT"
+issueTrackerURL="https://github.com/hmedopen/enchantments-enhanced/issues"
+
+[[mods]]
+modId="enchantment_workbench"
+version="${mod_version}"
+displayName="Enchantments Enhanced"
+displayURL="https://github.com/hmedopen/enchantments-enhanced"
+logoFile="assets/enchantment_workbench/icon.png"
+authors="hmed"
+description='''Reworks the vanilla enchanting table into a deterministic enchantment workbench.
+
+Insert an item or book, select exact enchantment levels, review lapis and XP costs,
+then apply the full selection in one server-validated transaction.'''
+
+[[dependencies.enchantment_workbench]]
+    modId="forge"
+    mandatory=true
+    versionRange="[64,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.enchantment_workbench]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[${minecraft_version},26.2,)"
+    ordering="NONE"
+    side="BOTH"
